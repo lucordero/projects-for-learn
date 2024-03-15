@@ -8,20 +8,30 @@ import Header from "../components/Header.astro"
     title="Pomodoro"
     description="Aplicacion de Pomodoro Timer para gestionar el tiempo de trabajo.">
         <MainContainer>
-            <h1 class="text-3xl font-bold text-center mb-8">Pomodoro</h1>
-            <div class=" mb-8 rounded-full size-[200px] flex items-center justify-center border-8 border-blue-300 border-solid" 
-            id="timer"> 15:00 
-            </div> 
-            <div class="control-buttons"> 
-                <button onclick="togglePauseResume()"> 
-                      Pause 
-                  </button> 
-                <button onclick="restartTimer()"> 
-                      Restart 
-                  </button> 
-                <button onclick="chooseTime()"> 
-                      Choose Time 
-                  </button> 
+            <div class="flex flex-row w-full justify-between items-center">
+                <button class="w-12 h-24 text-3xl rounded-2xl bg-gray-100/10 hover:bg-slate-100/20 transition-colors" id="substractMinute" onclick="substractMinute()">
+                    -
+                </button>
+
+                <div class="mx-8 rounded-full h-60 w-full flex items-center justify-center text-center text-7xl" 
+                id="timer"> 15:00 
+                </div> 
+                
+                <button class="w-12 h-24 text-3xl rounded-2xl bg-gray-100/10 hover:bg-slate-100/20 transition-colors" id="addMinute" onclick="addMinute()">
+                    +
+                </button>
+            </div>
+            
+            <div class="flex flex-row justify-between gap-4"> 
+                <button class='contol-buttons' id="toggleTimer" onclick="togglePauseResume()"> 
+                    Start 
+                </button> 
+                <button class='contol-buttons' onclick="restartTimer()"> 
+                    Restart 
+                </button> 
+                <button class='contol-buttons' onclick="chooseTime()"> 
+                    Choose Time 
+                </button> 
             </div>
 
         </MainContainer>
@@ -29,10 +39,23 @@ import Header from "../components/Header.astro"
 </Header>
 
 <script is:inline>
-let timer, minutes, seconds, isPaused, newTime;
+/*TODO: Arreglar botones cuando esta pausado, usar un estado para saber cuando "No arrancó", "Arrancó y se pausó" o "Está activo"
+        Agregar contadores de pomodoro
+        Agregar tiempo de descanso
 
+*/
+
+let timer, minutes = 15, seconds = 0, isPaused = true, enteredTime;
+const addMinuteElement = document.getElementById('addMinute')
+const substractMinuteElement = document.getElementById('substractMinute')
 
 function startTimer(){
+    addMinuteElement.setAttribute('hidden', true)
+    substractMinuteElement.setAttribute('hidden', true)
+
+    seconds = 59
+    minutes--
+
     timer = setInterval(updateTimer, 1000);
 }
 
@@ -42,7 +65,10 @@ function updateTimer(){
 
     if(minutes == 0 && seconds == 0){
         clearInterval(timer)
+        
         alert('Pomodoro completado!')
+        const PLAY_PAUSE_ELEMENT = document.getElementById('toggleTimer');
+        PLAY_PAUSE_ELEMENT.textContent = 'Start'
     }
     else if (!isPaused){
         if(seconds > 0){
@@ -61,33 +87,22 @@ function formatTime(minutes, seconds) {
 
 
 function togglePauseResume() { 
-    const pauseResumeButton = document.getElementById('toogleTimer'); 
+    const PLAY_PAUSE_ELEMENT = document.getElementById('toggleTimer');
+
     isPaused = !isPaused; 
 
     if (isPaused) { 
+        addMinuteElement.removeAttribute('hidden')
+        substractMinuteElement.removeAttribute('hidden')
+
         clearInterval(timer); 
-        pauseResumeButton.textContent = 'Resume'; 
+        PLAY_PAUSE_ELEMENT.textContent = 'Resume'; 
     } else { 
         startTimer(); 
-        pauseResumeButton.textContent = 'Pause'; 
+        PLAY_PAUSE_ELEMENT.textContent = 'Pause'; 
     } 
 } 
 
-function restartTimer() { 
-    clearInterval(timer); 
-    minutes = enteredTime || 15; 
-    seconds = 0; 
-    isPaused = false; 
-    const timerElement = 
-        document.getElementById('timer'); 
-    timerElement.textContent = 
-        formatTime(minutes, seconds); 
-    const pauseResumeButton = 
-        document.getElementById('toogleTimer') 
-    pauseResumeButton.textContent = 'Pause'; 
-    startTimer(); 
-} 
-  
 function chooseTime() { 
     const newTime = prompt('Enter new time in minutes:'); 
     if (!isNaN(newTime) && newTime > 0) { 
@@ -95,22 +110,57 @@ function chooseTime() {
         minutes = enteredTime; 
         seconds = 0; 
         isPaused = false; 
-        const timerElement = 
-            document.getElementById('timer'); 
-        timerElement.textContent = 
-            formatTime(minutes, seconds); 
+        const timerElement = document.getElementById('timer'); 
+        timerElement.textContent = formatTime(minutes, seconds); 
         clearInterval(timer); 
-        const pauseResumeButton = 
-            document.querySelector('.control-buttons button'); 
-        pauseResumeButton.textContent = 'Pause'; 
-        startTimer(); 
+        const PLAY_PAUSE_ELEMENT = document.getElementById('toggleTimer') 
+        PLAY_PAUSE_ELEMENT.textContent = 'Start';
+        isPaused = true;  
     } else { 
         alert('Invalid input. Please enter'+ 
-              ' a valid number greater than 0.'); 
+            ' a valid number greater than 0.'); 
     } 
 } 
-  
+function restartTimer() { 
+    clearInterval(timer);
+    enteredTime ? minutes = enteredTime : minutes = 15 
+    seconds = 0; 
+    isPaused = true; 
+    const timerElement = document.getElementById('timer'); 
+    timerElement.textContent = formatTime(minutes, seconds); 
+    const PLAY_PAUSE_ELEMENT = document.getElementById('toogleTimer') 
+    PLAY_PAUSE_ELEMENT.textContent = 'Start'; 
+    console.log('restart')
+} 
 
-startTimer()
+function addMinute() {
+    if(minutes < 99){
+    minutes++
+    const TIMER_ELEMENT = document.getElementById('timer')
+    TIMER_ELEMENT.textContent = formatTime(minutes, seconds)
+}
+}
+
+function substractMinute() {
+    if(minutes > 1){ 
+        minutes--
+        const TIMER_ELEMENT = document.getElementById('timer')
+        TIMER_ELEMENT.textContent = formatTime(minutes, seconds)
+    }
+}
+    
+    
 
 </script>
+
+<style>
+    #timer {
+        font-family: 'Space Mono', monospace, sans-serif, system-ui, -apple-system;
+        letter-spacing: 0.1em;
+    }
+    .contol-buttons{
+        width: 200px;
+        align-items: center;
+        text-align: center;
+    }
+</style>
