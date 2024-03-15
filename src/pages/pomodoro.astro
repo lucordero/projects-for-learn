@@ -8,7 +8,109 @@ import Header from "../components/Header.astro"
     title="Pomodoro"
     description="Aplicacion de Pomodoro Timer para gestionar el tiempo de trabajo.">
         <MainContainer>
-            <h1 class="text-3xl font-bold text-center">Pomodoro</h1>
+            <h1 class="text-3xl font-bold text-center mb-8">Pomodoro</h1>
+            <div class=" mb-8 rounded-full size-[200px] flex items-center justify-center border-8 border-blue-300 border-solid" 
+            id="timer"> 15:00 
+            </div> 
+            <div class="control-buttons"> 
+                <button onclick="togglePauseResume()"> 
+                      Pause 
+                  </button> 
+                <button onclick="restartTimer()"> 
+                      Restart 
+                  </button> 
+                <button onclick="chooseTime()"> 
+                      Choose Time 
+                  </button> 
+            </div>
+
         </MainContainer>
     </Layout>
 </Header>
+
+<script is:inline>
+let timer, minutes, seconds, isPaused, newTime;
+
+
+function startTimer(){
+    timer = setInterval(updateTimer, 1000);
+}
+
+function updateTimer(){
+    const TIMER_ELEMENT  = document.getElementById('timer')
+    TIMER_ELEMENT.textContent = formatTime(minutes, seconds)
+
+    if(minutes == 0 && seconds == 0){
+        clearInterval(timer)
+        alert('Pomodoro completado!')
+    }
+    else if (!isPaused){
+        if(seconds > 0){
+            seconds--
+        }
+        else{
+            seconds = 59
+            minutes--
+        }
+    }
+}
+
+function formatTime(minutes, seconds) {
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+
+function togglePauseResume() { 
+    const pauseResumeButton = document.getElementById('toogleTimer'); 
+    isPaused = !isPaused; 
+
+    if (isPaused) { 
+        clearInterval(timer); 
+        pauseResumeButton.textContent = 'Resume'; 
+    } else { 
+        startTimer(); 
+        pauseResumeButton.textContent = 'Pause'; 
+    } 
+} 
+
+function restartTimer() { 
+    clearInterval(timer); 
+    minutes = enteredTime || 15; 
+    seconds = 0; 
+    isPaused = false; 
+    const timerElement = 
+        document.getElementById('timer'); 
+    timerElement.textContent = 
+        formatTime(minutes, seconds); 
+    const pauseResumeButton = 
+        document.getElementById('toogleTimer') 
+    pauseResumeButton.textContent = 'Pause'; 
+    startTimer(); 
+} 
+  
+function chooseTime() { 
+    const newTime = prompt('Enter new time in minutes:'); 
+    if (!isNaN(newTime) && newTime > 0) { 
+        enteredTime = parseInt(newTime); 
+        minutes = enteredTime; 
+        seconds = 0; 
+        isPaused = false; 
+        const timerElement = 
+            document.getElementById('timer'); 
+        timerElement.textContent = 
+            formatTime(minutes, seconds); 
+        clearInterval(timer); 
+        const pauseResumeButton = 
+            document.querySelector('.control-buttons button'); 
+        pauseResumeButton.textContent = 'Pause'; 
+        startTimer(); 
+    } else { 
+        alert('Invalid input. Please enter'+ 
+              ' a valid number greater than 0.'); 
+    } 
+} 
+  
+
+startTimer()
+
+</script>
